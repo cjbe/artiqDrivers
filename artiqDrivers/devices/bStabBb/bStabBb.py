@@ -51,7 +51,7 @@ class BStabBb:
         return AV
     
     def test_set_pin(self,logicHigh=1,pin="P8_14"):
-        ''' this is a test function to set a pin on the beaglebone to high/low '''
+        ''' this is a test function to set a pin on the beaglebone to high or low '''
         GPIO.setup(pin, GPIO.OUT)
         if logicHigh:
             GPIO.output(pin, GPIO.HIGH)
