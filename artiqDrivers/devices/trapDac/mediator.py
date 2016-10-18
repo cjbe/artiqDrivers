@@ -1,5 +1,6 @@
 from artiq.language.core import *
 import time
+import numpy as np
 
 class TrapDacWrapper:
     """
@@ -35,18 +36,26 @@ class TrapDacWrapper:
         old_dc_vec = self.device.get_dc()
         old_rf = self.device.get_rf_level()
 
-        av_ec = mean([near_ec, far_ec])
-        av_ec_old = mean(old_dc_vec[0:2])
-        if av_ec > av_ec_old:
-            ec_increasing=True
+        if rf_level is not None and rf_level != old_rf:
+            rf_changed = True
+        else:
+            rf_changed = False
+
+        if near_ec is not None and far_ec is not None:
+            av_ec = np.mean([near_ec, far_ec])
+            av_ec_old = np.mean(old_dc_vec[0:2])
+            if av_ec > av_ec_old:
+                ec_increasing=True
+            else:
+                ec_increasing=False
         else:
             ec_increasing=False
 
         def set_rf():
-            if rf_level is not None:
+            if rf_changed:
                 self.device.set_rf_level(rf_level)
                 old_rf = rf_level
-        
+
         def set_dc():
             # If any voltages need to be changed ...
             if not all(v is None for v in dc_vec ):
@@ -54,7 +63,6 @@ class TrapDacWrapper:
                     if v is None:
                         dc_vec[i] = old_dc_vec[i]
                 self.device.set_dc(dc_vec)
-                print(dc_vec)
                 self.old_dc_vec = dc_vec
 
         if ec_increasing:
@@ -62,6 +70,6 @@ class TrapDacWrapper:
             set_dc()
         else:
             set_dc()
-            if rf_level is not None:
+            if rf_changed:
                 time.sleep(200e-3)
                 set_rf()
