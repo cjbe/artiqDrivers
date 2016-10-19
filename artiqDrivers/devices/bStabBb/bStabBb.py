@@ -171,6 +171,7 @@ class BStabBb:
         self._set_dac_value(self.CS_FB_FINE_PIN, value)
     
     def _set_dac_value(self, cs_pin, value):
+        GPIO.setup(cs_pin, GPIO.OUT)
         GPIO.output(cs_pin, GPIO.LOW)
         
         value = self._check_dac_value(value)
