@@ -14,8 +14,6 @@ class BStabBb:
         GPIO.setup(self.CS_FB_FINE_PIN, GPIO.OUT)
         self.spi00 = SPI(0,0)
         self.spi00.msh = self.FB_CLK_RATE
-        
-        self.setattr_device("core")
 
         self.maxDACvalue = (1<<16)-1
         
