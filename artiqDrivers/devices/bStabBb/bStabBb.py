@@ -12,6 +12,7 @@ class BStabBb:
         
         GPIO.setup(self.CS_FB_COARSE_PIN, GPIO.OUT)
         GPIO.setup(self.CS_FB_FINE_PIN, GPIO.OUT)
+        GPIO.setup(self.CS_ADC_PIN, GPIO.OUT)
         self.spi00 = SPI(0,0)
         self.spi00.msh = self.FB_CLK_RATE
         
@@ -171,7 +172,6 @@ class BStabBb:
         self._set_dac_value(self.CS_FB_FINE_PIN, value)
     
     def _set_dac_value(self, cs_pin, value):
-        GPIO.setup(cs_pin, GPIO.OUT)
         GPIO.output(cs_pin, GPIO.LOW)
         
         value = self._check_dac_value(value)
