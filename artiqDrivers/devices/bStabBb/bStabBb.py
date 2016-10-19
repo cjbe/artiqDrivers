@@ -61,10 +61,8 @@ class BStabBb:
     def checkStabiliserOutput(self, volt_margin=3, verbose=False):
         """Read feedback shunt voltage via ssh connection"""
         shunt_ok = False
-        shuntVoltage = self.read_voltage()
+        shunt_voltage = self.read_voltage()
 
-        #TODO check if this always works (what if V_shunt>10V?)
-        shunt_voltage = float(shuntVoltage[-1][-4:])
         if shunt_voltage > (10-volt_margin):
             shunt_ok_msg = "Too high!"
         elif shunt_voltage < volt_margin:
