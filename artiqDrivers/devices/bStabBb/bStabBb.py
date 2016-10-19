@@ -1,6 +1,6 @@
 from Adafruit_BBIO.SPI import SPI
 from Adafruit_BBIO import GPIO
-#from artiq.language.core import *
+import artiq.protocols.pyon as pyon
 
 class BStabBb:
   
@@ -14,6 +14,8 @@ class BStabBb:
         GPIO.setup(self.CS_FB_FINE_PIN, GPIO.OUT)
         self.spi00 = SPI(0,0)
         self.spi00.msh = self.FB_CLK_RATE
+        
+        self.fname = "dacValues.pyon"
 
         self.maxDACvalue = (1<<16)-1
         
@@ -47,10 +49,13 @@ class BStabBb:
     def setStabiliserDACs(self, cDacValue, fDacValue, verbose=False):
         """Update feedback DAC values"""
         self.set_DAC_values(CDAC=cDacValue,FDAC=fDacValue)
-        self.set_dataset("BField_stabiliser.cDAC", float(cDacValue), persist=True, broadcast=True)
-        self.set_dataset("BField_stabiliser.fDAC", float(fDacValue), persist=True, broadcast=True)
-        if verbose:
-            print("Update DACs {} {} --- Done.".format(int(cDacValue),int(fDacValue)))
+        dacValues = {'cDAC':cDacValue,'fDAC':fDacValue}
+        pyon.store_file(self.fname, dacValues)
+        #self.set_dataset("BField_stabiliser.cDAC", float(cDacValue), persist=True, broadcast=True)
+        #self.set_dataset("BField_stabiliser.fDAC", float(fDacValue), persist=True, broadcast=True)
+        #if verbose:
+        #    print("Update DACs {} {} --- Done.".format(int(cDacValue),int(fDacValue)))
+        return dacValues
 
     def checkStabiliserOutput(self, volt_margin=3, verbose=False):
         """Read feedback shunt voltage via ssh connection"""
@@ -99,8 +104,15 @@ class BStabBb:
             change_cDAC = 0
             change_fDAC = - int(round(VERR_corr / fDAClsb))
         
-        old_cDAC = self.get_dataset("BField_stabiliser.cDAC")
-        old_fDAC = self.get_dataset("BField_stabiliser.fDAC")
+        try:
+            oldDacValues = pyon.load_file(self.fname)
+            #old_cDAC = self.get_dataset("BField_stabiliser.cDAC")
+            #old_fDAC = self.get_dataset("BField_stabiliser.fDAC")
+        except FileNotFoundError:
+            print('Error: could not find file. Using default values')
+            oldDacValues = {'cDAC':54710,'fDAC':33354}
+        old_cDAC = oldDacValues['cDAC']
+        old_fDAC = oldDacValues['fDAC']
         
         new_cDAC = old_cDAC + change_cDAC
         new_fDAC = old_fDAC + change_fDAC
