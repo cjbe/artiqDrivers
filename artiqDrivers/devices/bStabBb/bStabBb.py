@@ -36,6 +36,9 @@ class BStabBb:
         # coarse DAC gain 200
         self.kHz_per_fDACvalue_est = self.kHz_per_mG * self.mG_per_mVerr * self.mVDAC_per_DACvalue
         self.kHz_per_cDACvalue_est = self.kHz_per_mG * self.mG_per_mVerr * 200 * self.mVDAC_per_DACvalue
+        
+    def get_max_dac_value(self):
+        return self.maxDACvalue
     
     def adjust_b_field(self, freq_diff, corrFactor=1):
         [cDAC, fDAC] = self.calcNewDACvaluesFromFreqDiff(freq_diff, corrFactor)
