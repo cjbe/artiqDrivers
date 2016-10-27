@@ -11,3 +11,4 @@ Ports:
 - bme_pulse_picker_timing_controller : 4007
 - highfinesse-lsa-server : 4008 (external repo)
 - bme-hv-psu_controller : 4009 (external repo)
+- thorlabs_ddr05_controller : 4010
