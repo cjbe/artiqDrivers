@@ -87,7 +87,7 @@ class RamanDdsWrapper(RamanDdsWrapperBase):
             
         elif channel == 'rV':
             # rV is +1st order, and at fixed frequency  
-            freqDDS = freqRv
+            freqDDS = freqRv+freq # HACK remove +freq again, only used for determining AOM scan range
             if (freqDDS<self.rVRange[0]) or (freqDDS>self.rVRange[1]):
                 raise ValueError("Rv frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(freqDDS/1e6,self.rVRange[0]/1e6,self.rVRange[1]/1e6))
             else:
