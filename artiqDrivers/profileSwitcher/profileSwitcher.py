@@ -4,12 +4,11 @@ import numpy as np
 
 
 class ProfileSwitcher:
-    def __init__(self, dmgr, device, profile_lines, interProfileDelay=200*ns, finalDelay=200*ns):
+    def __init__(self, dmgr, profile_lines, interProfileDelay=200*ns, finalDelay=200*ns):
         """interProfileDelay is the delay to insert between switching profile lines.
         finalDelay is the delay to add after all profile changes have occured.
         Profile line order is [p0, p1, p2]"""
         self.core = dmgr.get("core")
-        self.device = dmgr.get(device)
         
         self.nProfiles = len(profile_lines)
         self.profiles = []
