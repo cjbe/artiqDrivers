@@ -64,7 +64,7 @@ class RamanDdsWrapper(RamanDdsWrapperBase):
         """LO_freq : blue beat note frequency between master and slave laser"""
         RamanDdsWrapperBase.__init__(self, dmgr, device)
         # range of sensible frequencies for rPara and rV        
-        self.rParaRange = [70e6,120e6]
+        self.rParaRange = [140e6,250e6]
         self.rVRange = [213e6,218e6]
     
 
@@ -78,8 +78,6 @@ class RamanDdsWrapper(RamanDdsWrapperBase):
         
         if channel == 'rPara':
             # rPara is double passed +1,+1
-            freqDDS /= 2
-            phase /= 2
             if (freqDDS<self.rParaRange[0]) or (freqDDS>self.rParaRange[1]):
                 raise ValueError("Rpara frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(freqDDS/1e6,self.rParaRange[0]/1e6,self.rParaRange[1]/1e6))
             else:
