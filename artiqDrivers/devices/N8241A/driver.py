@@ -65,6 +65,10 @@ class N8241A:
         rc = self.h.AGN6030A_ConfigureOutputMode(self.session, ctypes.c_int(1))
         assert(rc == 0)
 
+        # Set N8241A to use external 10MHz reference input
+        rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, ctypes.c_int(1))
+        assert(rc == 0)
+
         # Turn predistortion off to prevent attenuation of the signal
         predistort = ctypes.c_int(0)
         # Attribute ID magic numbers:
