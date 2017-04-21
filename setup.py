@@ -11,7 +11,8 @@ scripts = [
     "rohdeSynth_controller=artiqDrivers.frontend.rohdeSynth_controller:main",
     "tti_ql355_controller=artiqDrivers.frontend.tti_ql355_controller:main",
     "scpi_synth_controller=artiqDrivers.frontend.scpi_synth_controller:main",
-    "thorlabs_ddr05_controller=artiqDrivers.frontend.thorlabs_ddr05_controller:main"
+    "thorlabs_ddr05_controller=artiqDrivers.frontend.thorlabs_ddr05_controller:main",
+    "N8241A_controller=artiqDrivers.frontend.N8241A_controller:main"
 ]
 
 setup(name='artiqDrivers',
