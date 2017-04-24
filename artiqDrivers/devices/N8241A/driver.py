@@ -45,10 +45,6 @@ class N8241A:
         rc = self.h.AGN6030A_ConfigureSampleClock(self.session, 0, ctypes.c_double(1.25e9))
         assert(rc == 0)
 
-        # Select the Internal reference clock
-        rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, 0)
-        assert(rc == 0)
-
         # Operate in burst (vs continuous) mode
         rc = self.h.AGN6030A_ConfigureOperationMode(self.session, channel, ctypes.c_int(1))
         assert(rc == 0)
