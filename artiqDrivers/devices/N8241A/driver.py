@@ -45,6 +45,10 @@ class N8241A:
         rc = self.h.AGN6030A_ConfigureSampleClock(self.session, 0, ctypes.c_double(1.25e9))
         assert(rc == 0)
 
+        # Select the Internal reference clock
+        rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, 0)
+        assert(rc == 0)
+
         # Operate in burst (vs continuous) mode
         rc = self.h.AGN6030A_ConfigureOperationMode(self.session, channel, ctypes.c_int(1))
         assert(rc == 0)
@@ -61,9 +65,9 @@ class N8241A:
         rc = self.h.AGN6030A_ConfigureOutputMode(self.session, ctypes.c_int(1))
         assert(rc == 0)
 
-        # Set N8241A to use external 10MHz reference input
-        rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, ctypes.c_int(1))
-        assert(rc == 0)
+        # # Set N8241A to use external 10MHz reference input
+        # rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, ctypes.c_int(1))
+        # assert(rc == 0)
 
         # Turn predistortion off to prevent attenuation of the signal
         predistort = ctypes.c_int(0)
