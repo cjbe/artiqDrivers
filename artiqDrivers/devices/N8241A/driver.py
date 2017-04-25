@@ -46,11 +46,11 @@ class N8241A:
         assert(rc == 0)
 
         # Select the Internal reference clock
-        rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, 0)
+        rc = self.h.AGN6030A_ConfigureRefClockSource(self.session, 1)
         assert(rc == 0)
 
-        # Operate in burst (vs continuous) mode
-        rc = self.h.AGN6030A_ConfigureOperationMode(self.session, channel, ctypes.c_int(1))
+        # Operate in burst (vs continuous) mode, 1=burst, 0=continuous
+        rc = self.h.AGN6030A_ConfigureOperationMode(self.session, channel, ctypes.c_int(0))
         assert(rc == 0)
 
         # Set to external trigger
