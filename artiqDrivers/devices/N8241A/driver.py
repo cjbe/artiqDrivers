@@ -43,7 +43,7 @@ class N8241A:
 
         # Select the Internal sample clock, internal=0, external=1
         #rc = self.h.AGN6030A_ConfigureSampleClock(self.session, 0, ctypes.c_double(1.25e9))
-        rc = self.h.AGN6030A_ConfigureSampleClock(self.session, 1, ctypes.c_double(990e6))
+        rc = self.h.AGN6030A_ConfigureSampleClock(self.session, 1, ctypes.c_double(1.25e9))
         assert(rc == 0)
 
         # Select the Internal reference clock, 0=internal, 1=external
