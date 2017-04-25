@@ -51,7 +51,7 @@ class N8241A:
         assert(rc == 0)
 
         # Operate in burst (vs continuous) mode, 1=burst, 0=continuous
-        rc = self.h.AGN6030A_ConfigureOperationMode(self.session, channel, ctypes.c_int(0))
+        rc = self.h.AGN6030A_ConfigureOperationMode(self.session, channel, ctypes.c_int(1))
         assert(rc == 0)
 
         # Set to external trigger
