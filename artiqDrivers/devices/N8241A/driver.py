@@ -102,8 +102,10 @@ class N8241A:
         def load_waveform(waveform):
             # Waveform should be float values with abs <= 1
             n = len(waveform)
+            scale_factor = 0.72 # max amplitude to have same output as rV DDS
+            waveform_scaled = [x*scale_factor for x in waveform]
             DataType = n*ctypes.c_double
-            data = DataType(*waveform)
+            data = DataType(*waveform_scaled)
             handle = ctypes.c_int()
             rc = self.h.AGN6030A_CreateArbWaveform(self.session,
                                                    ctypes.c_int(n),
