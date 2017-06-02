@@ -92,7 +92,8 @@ class RamanDdsWrapper(RamanDdsWrapperBase):
             if (freqDDS<self.rVRange[0]) or (freqDDS>self.rVRange[1]):
                 raise ValueError("Rv frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(freqDDS/1e6,self.rVRange[0]/1e6,self.rVRange[1]/1e6))
             else:
-                self.dds_fast.setProfile(0, profile, freqDDS, phase=phase, amp=amp)
+                #self.dds_fast.setProfile(0, profile, freqDDS, phase=phase, amp=amp)
+                self.dds.setProfile(1, profile, freqDDS, phase=phase, amp=amp)
         elif channel == 'rH2':
             # rV is +1st order, and at fixed frequency  
             freqDDS = freqRh2
@@ -103,7 +104,7 @@ class RamanDdsWrapper(RamanDdsWrapperBase):
         else:
             raise ValueError("Channel can only be rPara, rH2 or rV")
             
-        self.dds_fast.resetPhase()
+        #self.dds_fast.resetPhase()
         self.dds.resetPhase()
 
 
