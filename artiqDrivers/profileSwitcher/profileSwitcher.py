@@ -4,6 +4,10 @@ import numpy as np
 
 
 class ProfileSwitcher:
+    kernel_invariants = {"interProfileDelay_mu",
+                         "finalDelay_mu",
+                         "nProfiles",
+                         "profiles"}
     def __init__(self, dmgr, profile_lines, interProfileDelay=200*ns, finalDelay=200*ns):
         """interProfileDelay is the delay to insert between switching profile lines.
         finalDelay is the delay to add after all profile changes have occured.
@@ -23,14 +27,14 @@ class ProfileSwitcher:
     def setProfile(self, profile):
         if profile < 0 or profile > (2**self.nProfiles)-1:
             raise InvalidProfile()
-        
-        for ii in range(self.nProfiles):
-            if profile & 2**ii:
-                self.profiles[ii].on()
+
+        for i in range(self.nProfiles):
+            if profile & 1<<i:
+                self.profiles[i].on()
             else:
-                self.profiles[ii].off()
+                self.profiles[i].off()
             delay(self.interProfileDelay_mu)
-        delay(self.finalDelay_mu) 
+        delay(self.finalDelay_mu)
 
 
 class InvalidProfile(Exception):
