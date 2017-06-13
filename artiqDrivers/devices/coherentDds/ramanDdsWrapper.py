@@ -17,7 +17,8 @@ class RamanDdsWrapperBase:
         self.msDiff = 3.2e9 # master-slave Raman laser frequency difference
         self.trans = 't4030' # hyperfine transition without Zeeman shift
         self.hfs = self.hfq.df_trans(B=0,mF4=int(self.trans[2]),mF3=int(self.trans[4])) # hyperfinesplitting, independent of B
-        self.rH_freq = -109e6 # frequency of Rh, is -1st order
+        #self.rH_freq = -109e6 # frequency of Rh, is -1st order
+        self.rH_freq = -126e6 # frequency of Rh, is -1st order
     
 
 class RamanDdsWrapperPhaseNoise(RamanDdsWrapperBase):
@@ -60,6 +61,54 @@ class RamanDdsWrapperPhaseNoise(RamanDdsWrapperBase):
         self.dds.resetPhase()
         
 class RamanDdsWrapper(RamanDdsWrapperBase):
+    """For fast gate measurements, incl high field SBC"""
+    def __init__(self, dmgr, device, device_fast):
+        """LO_freq : blue beat note frequency between master and slave laser"""
+        RamanDdsWrapperBase.__init__(self, dmgr, device, device_fast)
+        # range of sensible frequencies for rPara and rV        
+        self.rParaRange = [140e6,250e6]
+        self.rVRange = [190e6,218e6]
+        self.rHRange = [213e6,218e6]
+    
+
+    def setProfile(self, channel, profile, freq, phase=0.0, amp=1.0, addQubitFreq = True):
+        ''' channnel: rPara or rV, profile: 0...7, if addQubitFreq=True: the lasers used to create the frequency difference are split by 3.2GHz '''
+        freqRv = 200.368568e6
+        freqRh2 = 217.309645e6
+        if addQubitFreq:
+            freqDDS = self.msDiff+self.rH_freq-freq
+        else:
+            freqDDS = freqRv + freq
+        
+        if channel == 'rPara':
+            # rPara is double passed +1,+1
+            if (freqDDS<self.rParaRange[0]) or (freqDDS>self.rParaRange[1]):
+                raise ValueError("Rpara frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(freqDDS/1e6,self.rParaRange[0]/1e6,self.rParaRange[1]/1e6))
+            else:
+                self.dds.setProfile(0, profile, freqDDS, phase=phase, amp=amp)
+            
+        elif channel == 'rV':
+            # rV is +1st order, and at fixed frequency  
+            freqDDS = freqRv
+            if (freqDDS<self.rVRange[0]) or (freqDDS>self.rVRange[1]):
+                raise ValueError("Rv frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(freqDDS/1e6,self.rVRange[0]/1e6,self.rVRange[1]/1e6))
+            else:
+                #self.dds_fast.setProfile(0, profile, freqDDS, phase=phase, amp=amp)
+                self.dds.setProfile(1, profile, freqDDS, phase=phase, amp=amp)
+        elif channel == 'rH2':
+            # rV is +1st order, and at fixed frequency  
+            freqDDS = freqRh2
+            if (freqDDS<self.rHRange[0]) or (freqDDS>self.rHRange[1]):
+                raise ValueError("RH2 frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(freqDDS/1e6,self.rHRange[0]/1e6,self.rHRange[1]/1e6))
+            else:
+                self.dds.setProfile(1, profile, freqDDS, phase=phase, amp=amp)
+        else:
+            raise ValueError("Channel can only be rPara, rH2 or rV")
+            
+        #self.dds_fast.resetPhase()
+        self.dds.resetPhase()
+
+class RamanDdsWrapperUsual(RamanDdsWrapperBase):
     """For fast gate measurements, incl high field SBC"""
     def __init__(self, dmgr, device, device_fast):
         """LO_freq : blue beat note frequency between master and slave laser"""
