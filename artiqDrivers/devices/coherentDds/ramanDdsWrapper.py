@@ -38,7 +38,7 @@ class RamanDdsWrapperPhaseNoise(RamanDdsWrapperBase):
         else:
             raise ValueError("This driver only supports addQubitFreq = True ")
         
-        if channel == 'rPara':
+        if channel == 'rV':
             # rPara is double passed +1,+1
             freqDDS /= 2
             phase /= 2
@@ -47,7 +47,7 @@ class RamanDdsWrapperPhaseNoise(RamanDdsWrapperBase):
             else:
                 self.dds.setProfile(0, profile, freqDDS, phase=phase, amp=amp)
             
-        elif channel == 'rV':
+        elif channel == 'rPara':
             # rV is -1st order  
             freqDDS *= -1     
             if (freqDDS<self.rVRange[0]) or (freqDDS>self.rVRange[1]):
