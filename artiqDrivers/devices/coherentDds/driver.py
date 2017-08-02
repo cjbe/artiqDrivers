@@ -11,17 +11,20 @@ class CoherentDds:
     lsbAmp = 1.0 / 16383 # 0x3fff is maximum amplitude
     lsbPhase = 360.0 / 65536 # Degrees per LSB.
   
-    def __init__(self, addr, clockFreq):
+    def __init__(self, addr, clockFreq, internal_clock=False):
         # addr : serial port name
         # clockFreq : clock frequency in Hz
+        # internal_clock: if true, use internal 1 GHz clock
         
         self.ser = serial.Serial(addr, baudrate=115200)
         self.lsbFreq = clockFreq / (2**32);
         self.clockFreq = clockFreq
 
-        
         # Write a trivial pulse shape to /disable/ pulse shaping (the VGA is always at max)
-        self.setPulseShape(0, [1]);
+        self.setPulseShape(0, [1])
+
+        if internal_clock:
+            self.setClockSource(clock_internal=True)
     
     def send(self, data):
         self.ser.write(data.encode())
@@ -30,9 +33,8 @@ class CoherentDds:
         """Returns a string representing the firmware name and version"""
         self.send('idn?\n')
         return self.ser.readline().decode().strip()
-        
     
-    def resetPhase(self):    
+    def resetPhase(self):
         self.send('resetPhase\n');
     
     def setProfile(self, channel, profile, freq, phase=0.0, amp=1.0):
@@ -100,6 +102,13 @@ class CoherentDds:
                 y = 0
             shapeVec.append(y)
         self.setPulseShape(shapeChannel, shapeVec)
+
+    def setClockSource(self, clock_internal=False):
+        """Choose between external clock (default) and internal 1 GHz source"""
+        self.send('setClockSource {:d}\n'.format(clock_internal))
+        self.ser.readline()
+        self.ser.readline()
+        self.ser.readline()
 
     def ping(self):
         return True

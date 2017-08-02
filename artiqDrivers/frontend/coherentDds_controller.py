@@ -17,7 +17,8 @@ def get_argparser():
                         help="Put the driver in simulation mode, even if "
                              "--device is used.")
     parser.add_argument("--clockfreq", default=1e9, type=float, help="clock frequency provided to DDS")
-    
+    parser.add_argument("--internal-clock", action="store_true")
+
     simple_network_args(parser, 4000)
     verbosity_args(parser)
     return parser
@@ -35,7 +36,8 @@ def main():
     if args.simulation:
         dev = CoherentDdsSim()
     else:
-        dev = CoherentDds(addr=args.device, clockFreq=args.clockfreq)
+        dev = CoherentDds(addr=args.device, clockFreq=args.clockfreq, 
+                                        internal_clock=args.internal_clock)
         
     simple_server_loop({"coherentDds": dev}, args.bind, args.port)
 
