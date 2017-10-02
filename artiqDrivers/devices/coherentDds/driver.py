@@ -22,6 +22,9 @@ class CoherentDds:
 
         # Write a trivial pulse shape to /disable/ pulse shaping (the VGA is always at max)
         self.setPulseShape(0, [1])
+        self.setPulseShape(1, [1])
+        self.setPulseShape(2, [1])
+        self.setPulseShape(3, [1])
 
         if internal_clock:
             self.setClockSource(clock_internal=True)
