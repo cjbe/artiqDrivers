@@ -4,7 +4,6 @@ scripts = [
     "bme_pulse_picker_timing_controller=artiqDrivers.frontend.bme_pulse_picker_timing_controller:main",
     "bStab_controller=artiqDrivers.frontend.bStab_controller:main",
     "coherentDds_controller=artiqDrivers.frontend.coherentDds_controller:main",
-    "dosDac_controller=artiqDrivers.frontend.dosDac_controller:main",
     "arduinoDds_controller=artiqDrivers.frontend.arduinoDds_controller:main",
     "trapDac_controller=artiqDrivers.frontend.trapDac_controller:main",
     "thorlabs_mdt69xb_controller=artiqDrivers.frontend.thorlabs_mdt69xb_controller:main",
