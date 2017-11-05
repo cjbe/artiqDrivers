@@ -76,8 +76,9 @@ class CoherentDds:
         time.sleep(50e-3);
 
     def disableCoherenceMode(self, ch0=False, ch1=False, ch2=False, ch3=False):
-        self.send('commandSetDisableCoherence {:d} {:d} {:d} {:d}\n'.\
+        self.send('setDisableCoherence {:d} {:d} {:d} {:d}\n'.\
                 format(ch0,ch1,ch2,ch3))
+        self.ser.readline()
 
 
     def setPulseShape(self, shapeChannel, shapeVec):
