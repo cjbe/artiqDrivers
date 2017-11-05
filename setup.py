@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 scripts = [
     "bme_pulse_picker_timing_controller=artiqDrivers.frontend.bme_pulse_picker_timing_controller:main",
@@ -16,22 +16,7 @@ scripts = [
 
 setup(name='artiqDrivers',
     version='0.1',
-    packages=['artiqDrivers',
-              'artiqDrivers.frontend',
-              'artiqDrivers.devices',
-              'artiqDrivers.devices.bStabBb',
-              'artiqDrivers.devices.arduinoDds',
-              'artiqDrivers.devices.bme_pulse_picker',
-              'artiqDrivers.devices.coherentDds',
-              'artiqDrivers.devices.dosDac',
-              'artiqDrivers.devices.rohdeSynth',
-              'artiqDrivers.devices.thorlabs_mdt69xb',
-              'artiqDrivers.devices.trapDac',
-              'artiqDrivers.devices.tti_ql355',
-              'artiqDrivers.devices.scpi_synth',
-              'artiqDrivers.devices.thorlabs_ddr05',
-              'artiqDrivers.profileSwitcher',
-             ],
+    packages=find_packages(),
     entry_points={
         "console_scripts": scripts,
     },
