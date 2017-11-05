@@ -80,7 +80,6 @@ class CoherentDds:
                 format(ch0,ch1,ch2,ch3))
         self.ser.readline()
 
-
     def setPulseShape(self, shapeChannel, shapeVec):
         if shapeChannel < 0 or shapeChannel > 3 or not isinstance(shapeChannel, int):
             raise ValueError("DDS pulse shape channel should be an integer between 0 and 3")
@@ -118,7 +117,6 @@ class CoherentDds:
     def setClockSource(self, clock_internal=False):
         """Choose between external clock (default) and internal 1 GHz source"""
         self.send('setClockSource {:d}\n'.format(clock_internal))
-        self.ser.readline()
         self.ser.readline()
         self.ser.readline()
 
