@@ -11,14 +11,17 @@ class CoherentDds:
     lsbAmp = 1.0 / 16383 # 0x3fff is maximum amplitude
     lsbPhase = 360.0 / 65536 # Degrees per LSB.
   
-    def __init__(self, addr, clockFreq, internal_clock=False):
+    def __init__(self, addr, clockFreq, internal_clock=False,
+                 incoherent_channels=[False, False, False, False]):
         # addr : serial port name
         # clockFreq : clock frequency in Hz
         # internal_clock: if true, use internal 1 GHz clock
-        
+        # incoherent_channels: array listing which channels coherence is disabled
         self.ser = serial.Serial(addr, baudrate=115200)
         self.lsbFreq = clockFreq / (2**32);
         self.clockFreq = clockFreq
+
+        self.disableCoherenceMode(*incoherent_channels)
 
         # Write a trivial pulse shape to /disable/ pulse shaping (the VGA is always at max)
         self.setPulseShape(0, [1])
@@ -36,10 +39,10 @@ class CoherentDds:
         """Returns a string representing the firmware name and version"""
         self.send('idn?\n')
         return self.ser.readline().decode().strip()
-    
+
     def resetPhase(self):
         self.send('resetPhase\n');
-    
+
     def setProfile(self, channel, profile, freq, phase=0.0, amp=1.0):
         """Sets a DDS profile frequency (Hz), phase (degrees), and amplitude (full-scale).
         phase defaults to 0 and amplitude defaults to 1"""
@@ -71,6 +74,11 @@ class CoherentDds:
     def reset(self):
         self.send('reset\n');
         time.sleep(50e-3);
+
+    def disableCoherenceMode(self, ch0=False, ch1=False, ch2=False, ch3=False):
+        self.send('commandSetDisableCoherence {:d} {:d} {:d} {:d}\n'.\
+                format(ch0,ch1,ch2,ch3))
+
 
     def setPulseShape(self, shapeChannel, shapeVec):
         if shapeChannel < 0 or shapeChannel > 3 or not isinstance(shapeChannel, int):
