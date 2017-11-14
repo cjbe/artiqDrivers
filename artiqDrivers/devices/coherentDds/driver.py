@@ -1,6 +1,7 @@
 import logging
 import serial
 import math
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,12 @@ class CoherentDds:
 
         if internal_clock:
             self.setClockSource(clock_internal=True)
-    
+
+    def read_spi_word(self):
+        self.send("getSpiWord?\n")
+        line = self.ser.readline().decode().strip()
+        return int(line, 16)
+
     def send(self, data):
         self.ser.write(data.encode())
     
