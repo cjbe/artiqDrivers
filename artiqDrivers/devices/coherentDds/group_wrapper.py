@@ -35,7 +35,7 @@ class DdsGroup:
         mappings = mappings
 
         ref_period_mu = self.core.seconds_to_mu(self.core.coarse_ref_period)
-        clock_div = 2 # This is set in the startup experiment
+        clock_div = 4 # This is set in the startup experiment
         write_period_mu = clock_div*ref_period_mu
         xfer_period_mu = 8*write_period_mu
         self.profile_delay_mu = self.core.seconds_to_mu(1.3*us) + \
