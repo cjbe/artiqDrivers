@@ -57,9 +57,13 @@ class PiezoController:
             logger.warning("Couldn't find '{}', no setpoints loaded".format(self.fname))
 
     def save_setpoints(self):
-        """Save current set values to file"""
+        """Deprecated since we save every time we set the voltage"""
+        self._save_setpoints()
+
+    def _save_setpoints(self):
+        """Write the setpoints out to file"""
         pyon.store_file(self.fname, self.channels)
-        logger.info("Saved '{}', channels: {}".format(self.fname, self.channels))
+        logger.debug("Saved '{}', channels: {}".format(self.fname, self.channels))
 
     def close(self):
         """Close the serial port."""
@@ -169,6 +173,7 @@ class PiezoController:
         self._check_voltage_in_limit(voltage)
         self._send_command("{}voltage={}".format( channel, voltage))
         self.channels[channel] = voltage
+        self._save_setpoints()
 
     def get_channel_output(self, channel):
         """Returns the current *output* voltage for a given channel.
