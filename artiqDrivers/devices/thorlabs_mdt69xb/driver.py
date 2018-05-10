@@ -31,40 +31,18 @@ class PiezoController:
         self.channels = {'x':-1, 'y':-1, 'z':-1}
         self._load_setpoints()
 
-    def _purge(self):
-        """Make sure we start from a clean slate with the controller"""
-        if not self.simulation:
-            self._send("")
-            self._reset_input()
-            self._send("")
-            c = self.port.read().decode()
-            if c == '!':
-                logger.debug("Clean slate established")
-            else:
-                raise ControllerError("Purge failed")
-
-    def _reset_input(self):
-        _ = self.port.read().decode()
-        while _ != '':
-            _ = self.port.read().decode()
-
-    def _load_setpoints(self):
-        """Load setpoints from a file"""
+    #
+    # Basic sending/receiving operations
+    #
+    def _send(self, cmd):
+        """Wrapper for send that will exit server if error occurs"""
         try:
-            self.channels = pyon.load_file(self.fname)
-            logger.info("Loaded '{}', channels: {}".format(self.fname, self.channels))
-        except FileNotFoundError:
-            logger.warning("Couldn't find '{}', no setpoints loaded".format(self.fname))
-
-    def save_setpoints(self):
-        """Save current set values to file"""
-        pyon.store_file(self.fname, self.channels)
-        logger.info("Saved '{}', channels: {}".format(self.fname, self.channels))
-
-    def close(self):
-        """Close the serial port."""
-        if not self.simulation:
-            self.port.close()
+            self.port.write((cmd+'\r').encode())
+        except serial.SerialTimeoutException as e:
+            logger.exception("Serial write timeout: Force exit")
+            # This is hacky but makes the server exit
+            asyncio.get_event_loop().call_soon(sys.exit, 42)
+            raise
 
     def _send_command(self, cmd):
         if self.simulation:
@@ -90,16 +68,6 @@ class PiezoController:
         else:
             raise ControllerError("Command '{}' failed, unexpectedly returned '{}'".format(cmd, c))
 
-    def _send(self, cmd):
-        """Wrapper for send that will exit server if error occurs"""
-        try:
-            self.port.write((cmd+'\r').encode())
-        except serial.SerialTimeoutException as e:
-            logger.exception("Serial write timeout: Force exit")
-            # This is hacky but makes the server exit
-            asyncio.get_event_loop().call_soon(sys.exit, 42)
-            raise
-
     def _read_line(self):
         """Read a CR terminated line. Returns '' on timeout"""
         s = ''
@@ -118,6 +86,31 @@ class PiezoController:
             return match.group(1)
         raise ParseError("Bracketed string not found in '{}'".format(line))
 
+    def _purge(self):
+        """Make sure we start from a clean slate with the controller"""
+        if not self.simulation:
+            self._send("")
+            self._reset_input()
+            self._send("")
+            c = self.port.read().decode()
+            if c == '!':
+                logger.debug("Clean slate established")
+            else:
+                raise ControllerError("Purge failed")
+
+    def _reset_input(self):
+        _ = self.port.read().decode()
+        while _ != '':
+            _ = self.port.read().decode()
+
+    def close(self):
+        """Close the serial port."""
+        if not self.simulation:
+            self.port.close()
+
+    #
+    # Get/Set commands
+    #
     def _get_echo(self):
         """Get echo mode of controller"""
         self._send_command("echo?")
@@ -138,15 +131,6 @@ class PiezoController:
             self._reset_input()
             self.echo = enable
 
-    def get_serial(self):
-        """Returns the device serial string."""
-        id = self.get_id()
-        match = re.search("Serial#:(.*)", id)
-        if match:
-            return match.group(1).strip()
-        # If we get here we got a timeout
-        raise IOError("Timeout while reading serial string")
-
     def get_id(self):
         """Returns the identity paragraph.
 
@@ -162,6 +146,16 @@ class PiezoController:
             s += line
             line = self._read_line()
         return s.replace('\r', '\n')
+
+
+    def get_serial(self):
+        """Returns the device serial string."""
+        id = self.get_id()
+        match = re.search("Serial#:(.*)", id)
+        if match:
+            return match.group(1).strip()
+        # If we get here we got a timeout
+        raise IOError("Timeout while reading serial string")
 
     def set_channel(self, channel, voltage):
         """Set a channel (one of 'x','y','z') to a given voltage."""
@@ -200,6 +194,22 @@ class PiezoController:
         controller settings"""
         if voltage > self.vLimit or voltage < 0:
             raise ValueError("Voltage must be between 0 and vlimit={}".format(self.vLimit))
+
+    #
+    # Save file operations
+    #
+    def _load_setpoints(self):
+        """Load setpoints from a file"""
+        try:
+            self.channels = pyon.load_file(self.fname)
+            logger.info("Loaded '{}', channels: {}".format(self.fname, self.channels))
+        except FileNotFoundError:
+            logger.warning("Couldn't find '{}', no setpoints loaded".format(self.fname))
+
+    def save_setpoints(self):
+        """Save current set values to file"""
+        pyon.store_file(self.fname, self.channels)
+        logger.info("Saved '{}', channels: {}".format(self.fname, self.channels))
 
     def ping(self):
         self.get_voltage_limit()
