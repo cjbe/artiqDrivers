@@ -250,6 +250,7 @@ class PiezoController:
         cmd = channel + 'voltage'
         self._set(cmd, voltage)
         self.channels[channel] = voltage
+        self._save_setpoints()
 
     def get_channel_output(self, channel):
         """Returns the current *output* voltage for a given channel.
@@ -302,11 +303,19 @@ class PiezoController:
         except FileNotFoundError:
             logger.warning("Couldn't find '{}', no setpoints loaded".format(self.fname))
 
-    def save_setpoints(self):
-        """Save current set values to file"""
+    def _save_setpoints(self):
+        """Write the setpoints out to file"""
         pyon.store_file(self.fname, self.channels)
-        logger.info("Saved '{}', channels: {}".format(self.fname, self.channels))
+        logger.debug("Saved '{}', channels: {}".format(self.fname, self.channels))
 
+    def save_setpoints(self):
+        """Deprecated since we save every time we set the voltage"""
+        self._save_setpoints()
+
+    #
+    # ping() required - get_voltage_limit() should raise an error if something
+    # is wrong
+    #
     def ping(self):
         self.get_voltage_limit()
         return True

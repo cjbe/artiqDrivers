@@ -57,7 +57,12 @@ class PiezoWrapper:
         return device.get_channel(channel)
 
     def save_setpoints(self, logicalChannel):
-        """Save setpoints for controller with given logical channel"""
+        """
+        Deprecated, since we save setpoints every time we set, so we no
+        longer need to call this function explicitly.
+
+        Save setpoints for controller with given logical channel.
+        """
         (dev, _) = self._get_dev_channel(logicalChannel)
         dev.save_setpoints()
 
