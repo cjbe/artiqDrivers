@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from artiqDrivers.devices.thorlabs_mdt69xb.driver import PiezoController
+from artiqDrivers.devices.thorlabs_mdt69xb.driver import PiezoController, SimulationPiezoController
 from artiq.protocols.pc_rpc import simple_server_loop
 from artiq.tools import verbosity_args, simple_network_args, init_logger
 
@@ -29,7 +29,10 @@ def main():
               "argument. Use --help for more information.")
         sys.exit(1)
 
-    dev = PiezoController(args.device if not args.simulation else None)
+    if not args.simulation:
+        dev = PiezoController(args.device)
+    else:
+        dev = SimulationPiezoController()
 
     # Q: Why not use try/finally for port closure?
     # A: We don't want to try to close the serial if sys.exit() is called,
