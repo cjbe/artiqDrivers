@@ -38,6 +38,9 @@ class CoherentDds:
         line = self.ser.readline().decode().strip()
         return int(line, 16)
 
+    def get_lsb_freq(self):
+        return self.lsbFreq
+
     def send(self, data):
         self.ser.write(data.encode())
     

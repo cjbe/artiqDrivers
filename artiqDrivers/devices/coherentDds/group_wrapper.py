@@ -93,6 +93,9 @@ class DdsChannel:
                             frequency, amp=0)
         self.dev.resetPhase()
 
+    def get_lsb_freq(self):
+        return self.dev.get_lsb_freq()
+
     @kernel
     def use_profile(self, profile):
         self._write_profile_select(self.spi, self.ch, profile)
