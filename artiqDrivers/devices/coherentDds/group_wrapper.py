@@ -48,11 +48,13 @@ class DdsGroup:
             spi_dev = spi_devices[dev_name]
 
             channel_cls = DdsChannel(self.core, dds_dev, spi_dev, ch, \
-                                    self._write_profile_select)
+                                    self._write_profile_select,\
+                                    self._write_pulse_enable)
             setattr(self, channel, channel_cls)
 
+
     @kernel
-    def _write_profile_select(self, spi, ch, profile, add_padding_delay=True):
+    def _write_profile_select(self, spi, ch, profile):
         """Set the profile select for a given spi device and channel number."""
         # Wire format:
         # cs low, clock in 8 bit word, cs high
@@ -62,28 +64,51 @@ class DdsGroup:
         # if mode=0 : data[2:0] is the profile select vector
         # if mode=1 : data[0] is the pulse enable line
         # The DDS control signals take effect on the rising edge of cs.
-        data = 0
-        data += (ch & 0xf) << 4
-        data += profile & 0x7
 
-        t0_mu = now_mu()
-        at_mu(t0_mu - self.profile_delay_mu)
+        data = 0 << 6
+        data += (ch & 3) << 4
+        data += profile & 7
         spi.write(data<<24)
-        at_mu(t0_mu)
-        if add_padding_delay:
-            delay_mu(self.padding_mu)
+        self._spi_write_with_delay(spi,data)
 
+    @kernel
+    def _write_pulse_enable(self, spi, ch, enable):
+        """Set the profile select for a given spi device and channel number."""
+        # Wire format:
+        # cs low, clock in 8 bit word, cs high
+        # bits 7-6 : mode, 0=set profile select, 1=set pulse enable
+        # bits 5-4 : channel, 0-3 for DDS channel 0-3
+        # bits 3-0 : mode dependant data
+        # if mode=0 : data[2:0] is the profile select vector
+        # if mode=1 : data[0] is the pulse enable line
+        # The DDS control signals take effect on the rising edge of cs.
 
+        data = 1 << 6
+        data += (ch & 3) << 4
+        data += enable & 1
+        self._spi_write(spi,data)
+
+    @kernel
+    def _spi_write_with_delay(self, spi, data):
+
+        spi.write(data<<24)
+        delay_mu(self.padding_mu+self.profile_delay_mu)
+
+    @kernel
+    def _spi_write(self, spi, data):
+
+        spi.write(data<<24)
 
 
 class DdsChannel:
     kernel_invariants = {"spi", "ch"}
-    def __init__(self, core, device, spi, channel, _write_profile_select):
+    def __init__(self, core, device, spi, channel, _write_profile_select, _write_pulse_enable):
         self.core = core
         self.dev = device
         self.spi = spi
         self.ch = channel
         self._write_profile_select = _write_profile_select
+        self._write_pulse_enable =_write_pulse_enable
 
     def set(self, frequency, profile=0, amplitude=1, phase=0):
         self.dev.setProfile(self.ch, profile, \
@@ -93,12 +118,19 @@ class DdsChannel:
                             frequency, amp=0)
         self.dev.resetPhase()
 
+    def set_sensible_pulse_shape(self, duration):
+        self.dev.setSensiblePulseShape(duration,self.ch)
+
     def get_lsb_freq(self):
         return self.dev.get_lsb_freq()
 
     @kernel
     def use_profile(self, profile):
         self._write_profile_select(self.spi, self.ch, profile)
+
+    @kernel
+    def pulse_enable(self,enable):
+        self._write_pulse_enable(self.spi,self.ch,enable)
 
     @kernel
     def on(self, profile=0):
