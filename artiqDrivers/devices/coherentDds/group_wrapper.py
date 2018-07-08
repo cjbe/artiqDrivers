@@ -54,7 +54,7 @@ class DdsGroup:
 
 
     @kernel
-    def _write_profile_select(self, spi, ch, profile):
+    def _write_profile_select(self, spi, ch, profile,delay = True):
         """Set the profile select for a given spi device and channel number."""
         # Wire format:
         # cs low, clock in 8 bit word, cs high
@@ -69,7 +69,7 @@ class DdsGroup:
         data += (ch & 3) << 4
         data += profile & 7
         spi.write(data<<24)
-        self._spi_write_with_delay(spi,data)
+        self._spi_write(spi,data,delay = delay)
 
     @kernel
     def _write_pulse_enable(self, spi, ch, enable):
@@ -86,18 +86,13 @@ class DdsGroup:
         data = 1 << 6
         data += (ch & 3) << 4
         data += enable & 1
-        self._spi_write(spi,data)
+        self._spi_write(spi,data,delay = False)
 
     @kernel
-    def _spi_write_with_delay(self, spi, data):
-
+    def _spi_write(self, spi, data, delay):
         spi.write(data<<24)
-        delay_mu(self.padding_mu+self.profile_delay_mu)
-
-    @kernel
-    def _spi_write(self, spi, data):
-
-        spi.write(data<<24)
+        if delay:
+            delay_mu(self.padding_mu+self.profile_delay_mu)
 
 
 class DdsChannel:
@@ -125,8 +120,8 @@ class DdsChannel:
         return self.dev.get_lsb_freq()
 
     @kernel
-    def use_profile(self, profile):
-        self._write_profile_select(self.spi, self.ch, profile)
+    def use_profile(self, profile,delay = True):
+        self._write_profile_select(self.spi, self.ch, profile, delay = delay)
 
     @kernel
     def pulse_enable(self,enable):
