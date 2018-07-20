@@ -108,9 +108,7 @@ class DdsChannel:
     def set(self, frequency, profile=0, amplitude=1, phase=0):
         self.dev.setProfile(self.ch, profile, \
                             frequency, amp=amplitude, phase=phase)
-        if profile == 0:
-            self.dev.setProfile(self.ch, 7, \
-                            frequency, amp=0)
+
         self.dev.resetPhase()
 
     def set_sensible_pulse_shape(self, duration):
@@ -127,11 +125,4 @@ class DdsChannel:
     def pulse_enable(self,enable):
         self._write_pulse_enable(self.spi,self.ch,enable)
 
-    @kernel
-    def on(self, profile=0):
-        self.use_profile(profile)
-
-    @kernel
-    def off(self):
-        self.use_profile(7)
 
