@@ -66,6 +66,7 @@ class DdsChannel:
         self.spi = spi
         self.ch = channel
         self._spi_write = _spi_write
+        self.pulse_enable(1) #Starts off with pulse shape high
 
     def set(self, frequency, profile=0, amplitude=1, phase=0):
         self.dev.setProfile(self.ch, profile, \
