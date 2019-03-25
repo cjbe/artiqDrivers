@@ -16,6 +16,7 @@ class UwaveDdsWrapper:
     
 
     def setProfile(self, profile, freq, phase=0.0, amp=1.0):
-        freqDDS = self.offsetFrequency + freq
+        #freqDDS = self.offsetFrequency + freq
+        freqDDS = freq
         
         self.dds.setProfile(profile, freqDDS, phase, amp)
