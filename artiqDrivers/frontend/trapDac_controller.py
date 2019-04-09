@@ -5,7 +5,8 @@ import sys
 
 from artiqDrivers.devices.trapDac.driver import TrapDac
 from artiq.protocols.pc_rpc import simple_server_loop
-from artiq.tools import verbosity_args, simple_network_args, init_logger
+from artiq.tools import simple_network_args, init_logger
+from oxart.tools import add_common_args
 
 
 def get_argparser():
@@ -16,7 +17,7 @@ def get_argparser():
                         help="Trap RF serial device")    
     
     simple_network_args(parser, 4005)
-    verbosity_args(parser)
+    add_common_args(parser)
     return parser
 
 

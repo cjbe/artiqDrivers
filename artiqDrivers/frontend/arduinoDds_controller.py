@@ -5,7 +5,8 @@ import sys
 
 from artiqDrivers.devices.arduinoDds.driver import ArduinoDds, ArduinoDdsSim
 from artiq.protocols.pc_rpc import simple_server_loop
-from artiq.tools import verbosity_args, simple_network_args, init_logger
+from artiq.tools import simple_network_args, init_logger
+from oxart.tools import add_common_args
 
 
 def get_argparser():
@@ -19,7 +20,7 @@ def get_argparser():
     parser.add_argument("--clockfreq", default=1e9, type=float, help="clock frequency provided to DDS")
     
     simple_network_args(parser, 4003)
-    verbosity_args(parser)
+    add_common_args(parser)
     return parser
 
 
