@@ -1,7 +1,7 @@
 from artiq.language.core import *
 from artiq.language import us
 import numpy as np
-
+from artiq.coredevice import spi2
 
 class DdsGroup:
     """
@@ -24,8 +24,10 @@ class DdsGroup:
     """
     kernel_invariants = {"core", "profile_delay_mu", "padding_mu"}
 
-    def __init__(self, dmgr, devices, mappings, clock_div):
+    def __init__(self, dmgr, devices, mappings, clock_div, invert=False):
         self.core = dmgr.get("core")
+
+        self.invert = invert
 
         dds_devices = {}
         spi_devices = {}
@@ -53,7 +55,14 @@ class DdsGroup:
 
     @kernel
     def _spi_write(self, spi, data, delay):
-        spi.write(data<<24)
+        if self.invert:
+            spi.set_config_mu((spi2.SPI_END|spi2.SPI_CLK_POLARITY|spi2.SPI_CS_POLARITY), 8, 10, 1)
+            # flags set: SPI_END sets cs to inactive at end of write, others do the inversion of everything but the signal
+            # 8: 8bits, write length; 10: speed, division of clock speed by 10, can be anything >2, 1: initial state of cs, ie cs active
+            spi.write(~(data<<24))
+        else:
+            spi.set_config_mu(spi2.SPI_END, 8, 10, 1)
+            spi.write(data<<24)
         if delay:
             delay_mu(self.padding_mu+self.profile_delay_mu)
 
