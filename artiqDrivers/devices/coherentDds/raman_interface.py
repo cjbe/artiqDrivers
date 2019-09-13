@@ -30,13 +30,14 @@ class AOM:
         freq_dds = frequency/self.order
         phase_dds = phase/self.order
 
+        print(freq_dds/1e6)
+
         if self.range[0] <= freq_dds <= self.range[1]:
             dds.set(freq_dds, profile = profile, amplitude = amplitude, phase = phase_dds)
         else:
             raise ValueError("{} AOM frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(self.name,freq_dds / 1e6, self.range[0] / 1e6, self.range[1] / 1e6))
 
     def set(self, frequency, profile=0, amplitude=1, phase=0):
-
         self._set_dds(frequency, profile=profile, amplitude=amplitude, phase=phase,dds=self.dds)
 
     def set2(self, frequency, profile=0, amplitude=1, phase=0):
@@ -97,29 +98,41 @@ class RamanInterface:
         assert(dds._rPara.get_lsb_freq() == dds._rV.get_lsb_freq() == dds._rH2.get_lsb_freq() == dds._rH2b.get_lsb_freq()) #4 channels of the same DDS. Sanity check, set up in device db
         self.lsb = dds._rPara.get_lsb_freq()
 
-        self.rPara = AOM("rPara",[140e6, 250e6],+1,dds._rPara) # BW 40 MHz, double pass -1 order
+        #self.rPara = AOM("rPara",[140e6, 250e6],+1,dds._rPara) # BW 40 MHz, double pass -1 order
+        self.rPara = AOM("rPara",[0e6, 401e6],+1,dds._rPara)
         self.rH2 = AOM("rH2",[175e6, 225e6],+1,dds._rH2,dds._rH2b) # BW 50 MHz, single pass -1 order . Here TTL switches second channel going to AOM, first channel is always on.
+        self.rV = AOM("rV",[175e6, 225e6],+1,dds._rV)
 
         #self.total_sp_amp = 0.35 #Old value so that we don't see higher harmonics when driving with 2 tones
         self.total_sp_amp = 1 # Gets more optical power
 
-        self.dds_delay = 200*ms #Enough time to let the DDS update, program long pulseshapes, and hopefully prevent crashes
+        self.dds_delay = 200*ms#0#1*ms #Enough time to let the DDS update, program long pulseshapes, and hopefully prevent crashes
 
+    @kernel
+    def set_to_profile(self,channel,profile,delay=True):
+        if channel == 'rPara':
+            self.rPara.dds.use_profile(profile,delay = delay)
+        elif channel == 'rH2':
+            self.rH2.dds.use_profile(profile,delay = delay)
+
+
+    @kernel
+    def reset_phase(self):
+        #TODO check, which channels/ simultaneously? we need to switch channels
+        self.rPara.dds.reset_phase()
+        self.rH2.dds.reset_phase()
 
     def _lsb_round(self,freq):
         """Rounds to nearest LSB freq of the DDS, i.e. the actual frequency produced by the DDS. """
         return int(round(freq/self.lsb))*self.lsb
 
-    def set_profile(self, channel, frequency, profile=0, amplitude=1, phase=0):
+    def set_profile(self, channel, frequency, profile=1, amplitude=1, phase=0):
         """Set profile"""
         if channel == 'rPara':
             self.rPara.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
-            self.rPara.dds.set_sensible_pulse_shape(self.pulse_shape_duration)
-            self.rPara.dds.reset_phase()
+            #self.rPara.dds.set_sensible_pulse_shape(self.pulse_shape_duration)
         elif channel == 'rH2':
             self.rH2.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
-            self.rH2.dds.reset_phase()
-
         time.sleep(self.dds_delay)
 
 
@@ -155,16 +168,3 @@ class RamanInterface:
 
         # time.sleep(self.dds_delay)
 
-    @kernel
-    def set_to_profile(self,channel,profile,delay=True):
-        if channel == 'rPara':
-            self.rPara.dds.use_profile(profile,delay = delay)
-        elif channel == 'rH2':
-            self.rH2.dds.use_profile(profile,delay = delay)
-
-
-    @kernel
-    def reset_phase(self):
-        #TODO check, which channels/ simultaneously? we need to switch channels
-        self.rPara.dds.reset_phase()
-        self.rH2.dds.reset_phase()
