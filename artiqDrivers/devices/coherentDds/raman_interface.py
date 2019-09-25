@@ -5,7 +5,6 @@ import time
 
 
 
-
 class AOM:
     """ Class which holds all the properties and funcitons of each AOM:
 
@@ -30,8 +29,6 @@ class AOM:
         freq_dds = frequency/self.order
         phase_dds = phase/self.order
 
-        print(freq_dds/1e6)
-
         if self.range[0] <= freq_dds <= self.range[1]:
             dds.set(freq_dds, profile = profile, amplitude = amplitude, phase = phase_dds)
         else:
@@ -39,6 +36,10 @@ class AOM:
 
     def set(self, frequency, profile=0, amplitude=1, phase=0):
         self._set_dds(frequency, profile=profile, amplitude=amplitude, phase=phase,dds=self.dds)
+
+    def identity(self):
+        idn = self.dds.identity()
+        return idn
 
     def set2(self, frequency, profile=0, amplitude=1, phase=0):
         if self.dds2 == None:
@@ -108,6 +109,8 @@ class RamanInterface:
 
         self.dds_delay = 200*ms#0#1*ms #Enough time to let the DDS update, program long pulseshapes, and hopefully prevent crashes
 
+        self.pulse_shape_duration = 2*us
+
     @kernel
     def set_to_profile(self,channel,profile,delay=True):
         if channel == 'rPara':
@@ -131,9 +134,11 @@ class RamanInterface:
         if channel == 'rPara':
             self.rPara.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
             #self.rPara.dds.set_sensible_pulse_shape(self.pulse_shape_duration)
+            self.rPara.identity()
+
         elif channel == 'rH2':
             self.rH2.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
-        time.sleep(self.dds_delay)
+
 
 
     def make_safe(self):
@@ -142,6 +147,17 @@ class RamanInterface:
             self.rH2.set2(0, profile = i, amplitude = 0)
         self.rH2.set(0, profile = 1, amplitude = 0)
 
+    @kernel
+    def set_sensible_pulse_shape(self):
+        self.rPara.dds.set_sensible_pulse_shape(self.pulse_shape_duration) #takes about 200ms
+
+    @kernel
+    def pulse_shape_on(self):
+        self.rPara.dds.pulse_enable(1)
+
+    @kernel
+    def pulse_shape_off(self):
+        self.rPara.dds.pulse_enable(0)
 
     # def set_bichromat(self,sideband_freq, phase = 0, centre_freq=0, RSB_amp = None, BSB_amp = None):
     #     """Sets up the dds channels to output a symmetric bicromatic tone on the SP AOM, with the DP AOM at the centre freq. This sets the DP profile 0 to "centre_freq" and "phase", and the SP first channel, profile 0 to it's centre """
