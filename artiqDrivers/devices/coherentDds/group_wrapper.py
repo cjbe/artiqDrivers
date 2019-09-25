@@ -88,6 +88,10 @@ class DdsChannel:
     def get_lsb_freq(self):
         return self.dev.get_lsb_freq()
 
+    def identity(self):
+        idn = self.dev.identity()
+        return idn
+
     @kernel
     def use_profile(self, profile,delay = True):
         self._write_profile_select(self.spi, self.ch, profile, delay = delay)
