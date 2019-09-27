@@ -126,6 +126,12 @@ class RamanInterface:
         #TODO check, which channels/ simultaneously? we need to switch channels
         self.rPara.dds.reset_phase()
         self.rH2.dds.reset_phase()
+        self.rV.dds.reset_phase()
+
+    def serial_reset_phase(self):
+        self.rPara.dds.serial_reset_phase()
+        self.rH2.dds.serial_reset_phase()
+        self.rV.dds.serial_reset_phase()
 
     def _lsb_round(self,freq):
         """Rounds to nearest LSB freq of the DDS, i.e. the actual frequency produced by the DDS. """
@@ -152,7 +158,7 @@ class RamanInterface:
             self.rPara.set2(0, profile = i, amplitude = 0)
         self.rPara.set(0, profile = 1, amplitude = 0)
 
-    @kernel
+
     def set_sensible_pulse_shape(self,pulse_shape_duration=2*us):
         self.rH2.dds.set_sensible_pulse_shape(pulse_shape_duration) #takes about 200ms
         self.rH2.identity()
@@ -162,10 +168,17 @@ class RamanInterface:
         self.rH2.dds.pulse_enable(1)
 
     @kernel
+    def pulse_shape_pulse(self,t):
+        self.pulse_shape_on()
+        delay(t)
+        self.pulse_shape_off()
+
+    @kernel
     def pulse_shape_off(self):
         self.rH2.dds.pulse_enable(0)
 
-    def set_bichromat(self,sideband_freq, phase = 0, rPara_profile=1, rParaB_profile=0, RSB_amp = None, BSB_amp = None):
+    def set_bichromat(self,sideband_freq, phase = 0, rPara_profile=1,
+                      rParaB_profile=0, RSB_amp = None, BSB_amp = None):
         """Sets up the dds channels to output a symmetric bi-chromatic tone on the rPara AOM"""
 
         imbalance_param = 1.00
