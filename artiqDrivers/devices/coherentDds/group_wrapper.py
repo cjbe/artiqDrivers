@@ -92,16 +92,22 @@ class DdsChannel:
         idn = self.dev.identity()
         return idn
 
+    def serial_reset_phase(self):
+        self.dev.resetPhase()
+
     @kernel
     def use_profile(self, profile,delay = True):
+        # write via SPI
         self._write_profile_select(self.spi, self.ch, profile, delay = delay)
 
     @kernel
     def pulse_enable(self,enable):
+        # write via SPI
         self._write_pulse_enable(self.spi,self.ch,enable)
 
     @kernel
     def reset_phase(self):
+        # write via SPI
         self._write_reset_phase(self.spi)
 
     @kernel
