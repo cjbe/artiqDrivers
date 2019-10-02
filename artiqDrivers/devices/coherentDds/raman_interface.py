@@ -101,13 +101,13 @@ class RamanInterface:
         dds = dmgr.get(dds_device)
         self.core = dmgr.get("core")
 
-        assert(dds._rPara.get_lsb_freq() == dds._rV.get_lsb_freq() == dds._rH2.get_lsb_freq() == dds._rParaB.get_lsb_freq()) #4 channels of the same DDS. Sanity check, set up in device db
-        self.lsb = dds._rPara.get_lsb_freq()
+        assert(dds._ch1.get_lsb_freq() == dds._ch2.get_lsb_freq() == dds._ch3.get_lsb_freq() == dds._ch4.get_lsb_freq()) #4 channels of the same DDS. Sanity check, set up in device db
+        self.lsb = dds._ch1.get_lsb_freq()
 
         #self.rPara = AOM("rPara",[140e6, 250e6],+1,dds._rPara) # BW 40 MHz, single pass +1 order
-        self.rPara = RamanAOM("rPara",[200e6, 250e6],+1,dds._rPara,dds2=dds._rParaB)
-        self.rH2 = RamanAOM("rH2",[175e6, 225e6],+1,dds._rH2) # single pass +1 order
-        self.rV = RamanAOM("rV",[175e6, 225e6],+1,dds._rV)
+        self.rPara = RamanAOM("rPara",[200e6, 250e6],+1,dds._ch1,dds2=dds._ch4)
+        self.rH2 = RamanAOM("rH2",[175e6, 225e6],+1,dds._ch3) # single pass +1 order
+        self.rV = RamanAOM("rV",[175e6, 225e6],+1,dds._ch2)
 
         #self.total_sp_amp = 0.35 #Old value so that we don't see higher harmonics when driving with 2 tones
         self.total_sp_amp = 1 # Gets more optical power
