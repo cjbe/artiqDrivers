@@ -84,6 +84,9 @@ class RamanAOM(AOM):
         freqDDS = self.calculate_dds_frequency(frequency,add_qubit_freq=add_qubit_freq,on_clock=on_clock)
         super().set2(frequency=freqDDS, profile=profile, amplitude=amplitude, phase=phase)
 
+    def _direct_set(self, frequency, profile=0, amplitude=1, phase=0):
+        # use this only for debugging purposes, tp directly program in a dds frequency
+        super().set(frequency=frequency, profile=profile, amplitude=amplitude, phase=phase)
 
 
 
@@ -151,6 +154,17 @@ class RamanInterface:
             self.rV.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
             self.rV.identity()
 
+    def debug_set_profile(self, frequency, profile=0, laser='rPara'):
+        """Set profile"""
+        if laser == 'rPara':
+            self.rPara._direct_set(frequency,profile=profile)
+            self.rPara.identity()
+        if laser == 'rH2':
+            self.rH2._direct_set(frequency,profile=profile)
+            self.rH2.identity()
+        if laser == 'rV':
+            self.rV._direct_set(frequency,profile=profile)
+            self.rV.identity()
 
     def make_safe(self):
         """Prevents second channel connected to bichromatic AOM outputting RF, which may cause total RF power to exceed the AOM's damage threshold"""
@@ -189,7 +203,7 @@ class RamanInterface:
         RSB_amp = RSB_amp_default if RSB_amp is None else RSB_amp
         BSB_amp = BSB_amp_default if BSB_amp is None else BSB_amp
 
-        assert(np.sqrt(RSB_amp**2 + BSB_amp**2) <= 1.0)
+        #assert(np.sqrt(RSB_amp**2 + BSB_amp**2) <= 1.0)
 
         self.rPara.set ( sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
         self.rPara.set2(-sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=phase, add_qubit_freq=False) #RSB
