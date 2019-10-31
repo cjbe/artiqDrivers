@@ -140,10 +140,12 @@ class RamanInterface:
         """Rounds to nearest LSB freq of the DDS, i.e. the actual frequency produced by the DDS. """
         return int(round(freq/self.lsb))*self.lsb
 
-    def set_profile(self, channel, frequency, profile=1, amplitude=1, phase=0, add_qubit_freq=True, on_clock=False):
+    def set_profile(self, channel, frequency, profile=1, amplitude=1, phase=0, 
+                    add_qubit_freq=True, on_clock=False):
         """Set profile"""
         if channel == 'rPara':
-            self.rPara.set(frequency,profile=profile, amplitude=amplitude, phase=phase, add_qubit_freq=add_qubit_freq, on_clock=on_clock)
+            self.rPara.set(frequency,profile=profile, amplitude=amplitude, phase=phase, 
+                            add_qubit_freq=add_qubit_freq, on_clock=on_clock)
             self.rPara.identity()
 
         elif channel == 'rH2':
@@ -174,8 +176,11 @@ class RamanInterface:
 
 
     def set_sensible_pulse_shape(self,pulse_shape_duration=2*us):
-        self.rH2.dds.set_sensible_pulse_shape(pulse_shape_duration) #takes about 200ms
-        self.rH2.identity()
+        if pulse_shape_duration == 0:
+            return
+        else:
+            self.rH2.dds.set_sensible_pulse_shape(pulse_shape_duration) #takes about 200ms
+            self.rH2.identity()
 
     @kernel
     def pulse_shape_on(self):
