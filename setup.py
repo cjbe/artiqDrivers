@@ -6,7 +6,6 @@ scripts = [
     "coherentDds_controller=artiqDrivers.frontend.coherentDds_controller:main",
     "arduinoDds_controller=artiqDrivers.frontend.arduinoDds_controller:main",
     "trapDac_controller=artiqDrivers.frontend.trapDac_controller:main",
-    "thorlabs_mdt69xb_controller=artiqDrivers.frontend.thorlabs_mdt69xb_controller:main",
     "rohdeSynth_controller=artiqDrivers.frontend.rohdeSynth_controller:main",
     #"tti_ql355_controller=artiqDrivers.frontend.tti_ql355_controller:main",
     "scpi_synth_controller=artiqDrivers.frontend.scpi_synth_controller:main",
