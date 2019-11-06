@@ -200,7 +200,7 @@ class RamanInterface:
                       rParaB_profile=0, RSB_amp = None, BSB_amp = None):
         """Sets up the dds channels to output a symmetric bi-chromatic tone on the rPara AOM"""
 
-        imbalance_param = 1.00
+        imbalance_param = 0.8
 
         RSB_amp_default = (imbalance_param/np.sqrt(2))*self.total_sp_amp
         BSB_amp_default = np.sqrt(1 - (imbalance_param**2)/2)*self.total_sp_amp
