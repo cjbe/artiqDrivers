@@ -35,6 +35,8 @@ class AOM:
             raise ValueError("{} AOM frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(self.name,freq_dds / 1e6, self.range[0] / 1e6, self.range[1] / 1e6))
 
     def set(self, frequency, profile=0, amplitude=1, phase=0):
+        print("set")
+        print("dds freq {}, profile {}, amp {}, phase {}".format(frequency, profile, amplitude, phase))
         self._set_dds(frequency, profile=profile, amplitude=amplitude, phase=phase,dds=self.dds)
 
     def identity(self):
@@ -42,6 +44,8 @@ class AOM:
         return idn
 
     def set2(self, frequency, profile=0, amplitude=1, phase=0):
+        print("set2")
+        print("dds freq {}, profile {}, amp {}, phase {}".format(frequency, profile, amplitude, phase))
         if self.dds2 == None:
             raise AttributeError("{} AOM does not have a second DDS channel".format(self.name))
         self._set_dds(frequency, profile=profile, amplitude=amplitude, phase=phase,dds=self.dds2)
@@ -102,6 +106,8 @@ class RamanInterface:
     def __init__(self, dmgr, dds_device):
 
         dds = dmgr.get(dds_device)
+        print("dds")
+        print(dds)
         self.core = dmgr.get("core")
 
         assert(dds._ch1.get_lsb_freq() == dds._ch2.get_lsb_freq() == dds._ch3.get_lsb_freq() == dds._ch4.get_lsb_freq()) #4 channels of the same DDS. Sanity check, set up in device db
@@ -120,6 +126,12 @@ class RamanInterface:
     def set_to_profile(self,channel,profile,delay=True):
         if channel == 'rPara':
             self.rPara.dds.use_profile(profile,delay = delay)
+            print(self.rPara.dds)
+        #elif channel == 'rParaB':
+            #print("set to profile raman interface - rPara.dds2 is")
+            #print(self.rPara.dds2)
+            #self.rPara.dds2.use_profile(profile,delay = delay)
+            pass
         elif channel == 'rH2':
             self.rH2.dds.use_profile(profile,delay = delay)
 
@@ -144,17 +156,27 @@ class RamanInterface:
                     add_qubit_freq=True, on_clock=False):
         """Set profile"""
         if channel == 'rPara':
+            print("set rPara profile {}".format(profile))
             self.rPara.set(frequency,profile=profile, amplitude=amplitude, phase=phase, 
                             add_qubit_freq=add_qubit_freq, on_clock=on_clock)
             self.rPara.identity()
 
         elif channel == 'rH2':
+            print("set rH2 profile {}".format(profile))
             self.rH2.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
             self.rH2.identity()
 
         elif channel == 'rV':
+            print("set rV profile {}".format(profile))
             self.rV.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
             self.rV.identity()
+
+        elif channel == 'rParaB':
+            print("set rParaB profile {}".format(profile))
+            self.rPara.set2(frequency,profile=profile, amplitude=amplitude, phase=phase, 
+                            add_qubit_freq=add_qubit_freq, on_clock=on_clock)
+            self.rPara.identity()
+
 
     def debug_set_profile(self, frequency, profile=0, laser='rPara'):
         """Set profile"""
@@ -208,10 +230,14 @@ class RamanInterface:
         RSB_amp = RSB_amp_default if RSB_amp is None else RSB_amp
         BSB_amp = BSB_amp_default if BSB_amp is None else BSB_amp
 
+        print(RSB_amp)
+
         #assert(np.sqrt(RSB_amp**2 + BSB_amp**2) <= 1.0)
 
-        self.rPara.set ( sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
-        self.rPara.set2(-sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=phase, add_qubit_freq=False) #RSB
+        print("set bichromat")
+
+        self.rPara.set (-sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
+        self.rPara.set2(sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=phase, add_qubit_freq=False) #RSB
 
         self.rPara.identity() # check if finished
 
