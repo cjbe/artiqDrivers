@@ -123,15 +123,16 @@ class RamanInterface:
     @kernel
     def reset_phase(self):
         #TODO check, which channels/ simultaneously? we need to switch channels
-        # add rParaB here too?
         self.rPara.dds.reset_phase()
         self.rH2.dds.reset_phase()
         self.rV.dds.reset_phase()
+        self.rParaB.dds.reset_phase()
 
     def serial_reset_phase(self):
         self.rPara.dds.serial_reset_phase()
         self.rH2.dds.serial_reset_phase()
         self.rV.dds.serial_reset_phase()
+        self.rParaB.dds.serial_reset_phase()
 
     def _lsb_round(self,freq):
         """Rounds to nearest LSB freq of the DDS, i.e. the actual frequency produced by the DDS. """
