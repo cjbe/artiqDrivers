@@ -31,7 +31,9 @@ class AOM:
         phase_dds = phase/self.order
 
         if self.range[0] <= freq_dds <= self.range[1]:
+            #ftw = dds.frequency_to_ftw(freq_dds)
             dds.set(freq_dds, profile = profile, amplitude = amplitude, phase = phase_dds)
+            #dds.set_mu(ftw, profile = profile, amplitude = amplitude, phase = phase_dds)
         else:
             raise ValueError("{} AOM frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(self.name,freq_dds / 1e6, self.range[0] / 1e6, self.range[1] / 1e6))
 
@@ -72,6 +74,7 @@ class RamanAOM(AOM):
 
 
     def set(self, frequency, profile=0, amplitude=1, phase=0, add_qubit_freq=True, on_clock=False):
+        print(self.name, "profile", profile, "phase", phase)
         freqDDS = self.calculate_dds_frequency(frequency,add_qubit_freq=add_qubit_freq,on_clock=on_clock)
         super().set(frequency=freqDDS, profile=profile, amplitude=amplitude, phase=phase)
 
@@ -110,6 +113,7 @@ class RamanInterface:
 
     @kernel
     def set_to_profile(self,channel,profile,delay=True):
+        #print(channel, "set to profile", profile)
         if channel == 'rPara':
             self.rPara.dds.use_profile(profile,delay = delay)
         elif channel == 'rParaB':
@@ -142,12 +146,12 @@ class RamanInterface:
                     add_qubit_freq=True, on_clock=False):
         """Set profile"""
         if channel == 'rPara':
-            self.rPara.set(frequency,profile=profile, amplitude=amplitude, phase=phase, 
+            self.rPara.set(self._lsb_round(frequency),profile=profile, amplitude=amplitude, phase=phase, 
                             add_qubit_freq=add_qubit_freq, on_clock=on_clock)
             self.rPara.identity()
 
         elif channel == 'rH2':
-            self.rH2.set(frequency,profile=profile, amplitude=amplitude, phase=phase)
+            self.rH2.set(self._lsb_round(frequency),profile=profile, amplitude=amplitude, phase=phase)
             self.rH2.identity()
 
         elif channel == 'rV':
@@ -155,7 +159,7 @@ class RamanInterface:
             self.rV.identity()
 
         elif channel == 'rParaB':
-            self.rParaB.set(frequency,profile=profile, amplitude=amplitude, phase=phase, 
+            self.rParaB.set(self._lsb_round(frequency),profile=profile, amplitude=amplitude, phase=phase, 
                             add_qubit_freq=add_qubit_freq, on_clock=on_clock)
             self.rParaB.identity()
 
@@ -215,10 +219,12 @@ class RamanInterface:
         RSB_amp = RSB_amp_default if RSB_amp is None else RSB_amp
         BSB_amp = BSB_amp_default if BSB_amp is None else BSB_amp
 
+        rounded_sideband_freq = self._lsb_round(sideband_freq) # To ensure RSB and BSB are not rounded differently
+
         #assert(np.sqrt(RSB_amp**2 + BSB_amp**2) <= 1.0)
 
-        self.rPara.set (-sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
-        self.rParaB.set(sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=phase, add_qubit_freq=False) #RSB
+        self.rPara.set (-rounded_sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
+        self.rParaB.set(rounded_sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=phase, add_qubit_freq=False) #RSB
 
         self.rPara.identity() # check if finished
         self.rParaB.identity()
