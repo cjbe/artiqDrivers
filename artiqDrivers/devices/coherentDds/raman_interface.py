@@ -74,7 +74,7 @@ class RamanAOM(AOM):
 
 
     def set(self, frequency, profile=0, amplitude=1, phase=0, add_qubit_freq=True, on_clock=False):
-        print(self.name, "profile", profile, "phase", phase)
+        #print('configure profile', self.name, "profile", profile, "phase", phase)
         freqDDS = self.calculate_dds_frequency(frequency,add_qubit_freq=add_qubit_freq,on_clock=on_clock)
         super().set(frequency=freqDDS, profile=profile, amplitude=amplitude, phase=phase)
 
@@ -224,7 +224,7 @@ class RamanInterface:
         #assert(np.sqrt(RSB_amp**2 + BSB_amp**2) <= 1.0)
 
         self.rPara.set (-rounded_sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
-        self.rParaB.set(rounded_sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=phase, add_qubit_freq=False) #RSB
+        self.rParaB.set(rounded_sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=-phase, add_qubit_freq=False) #RSB
 
         self.rPara.identity() # check if finished
         self.rParaB.identity()
