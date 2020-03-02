@@ -30,7 +30,7 @@ class QL355:
         ident = self.identity()
         if ident.startswith("THURLBY-THANDAR,QL355P"):
             self.type = PsuType.QL355P
-        elif ident.startswith("THURLBY-THANDAR,QL355TP"):
+        elif ident.startswith("THURLBY-THANDAR,QL355TP") or ident.startswith("THURLBY THANDAR, QL355TP"):
             self.type = PsuType.QL355TP
         else:
             raise Exception("Unsupported PSU type '{}'".format(ident))
