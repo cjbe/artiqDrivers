@@ -147,6 +147,21 @@ class QL355:
             raise ValueError("Could not interpret device response as a float")
         return val
 
+    def get_ocp_current(self, channel=0):
+        """Returns the current (in Amps) at which the OCP protection trips"""
+        self._check_valid_channel(channel)
+        self._send_command("OCP{}?\n".format(channel+1))
+        response = self._read_line().strip()
+        try:
+            val = float(response[3:])
+        except ValueError:
+            raise ValueError("Could not interpret device response as a float")
+        return val
+
+    def trip_reset(self, channel=0):
+        """Attempt to clear all trip conditions"""
+        self._send_command("TRIPRST\n")
+
     def identity(self):
         """Returns the identity string of the device"""
         self._send_command("*IDN?")
