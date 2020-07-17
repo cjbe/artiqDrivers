@@ -5,7 +5,7 @@ import sys
 
 from artiqDrivers.devices.coherentDds.driver import CoherentDds, CoherentDdsSim
 from sipyco.pc_rpc import simple_server_loop
-from sipyco.common_args import simple_network_args, init_logger
+from sipyco.common_args import simple_network_args, init_logger_from_args
 from oxart.tools import add_common_args
 
 
@@ -31,7 +31,7 @@ def get_argparser():
 
 def main():
     args = get_argparser().parse_args()
-    init_logger(args)
+    init_logger_from_args(args)
 
     incoherent_channels = [False]*4
     if args.disable_coherence:

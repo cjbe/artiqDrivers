@@ -6,7 +6,7 @@ import sys
 from artiqDrivers.devices.bme_pulse_picker.bme_delay_gen import ClockSource, Driver
 from artiqDrivers.devices.bme_pulse_picker.timing import PulsePickerTiming
 from sipyco.pc_rpc import simple_server_loop
-from sipyco.common_args import simple_network_args, init_logger
+from sipyco.common_args import simple_network_args, init_logger_from_args
 from oxart.tools import add_common_args
 
 
@@ -22,7 +22,7 @@ def get_argparser():
 
 def main():
     args = get_argparser().parse_args()
-    init_logger(args)
+    init_logger_from_args(args)
 
     delay_gen = None
     if not args.simulation:
