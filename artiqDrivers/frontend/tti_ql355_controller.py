@@ -5,7 +5,7 @@ import sys
 
 from artiqDrivers.devices.tti_ql355.driver import QL355
 from sipyco.pc_rpc import simple_server_loop
-from artiq.tools import simple_network_args, init_logger, bind_address_from_args
+from sipyco.common_args import simple_network_args, init_logger, bind_address_from_args
 from oxart.tools import add_common_args
 
 def get_argparser():

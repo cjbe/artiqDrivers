@@ -4,7 +4,7 @@ import argparse
 
 from artiqDrivers.devices.bStabBb.bStabBb import BStabBb
 from sipyco.pc_rpc import simple_server_loop
-from artiq.tools import simple_network_args, init_logger
+from sipyco.common_args import simple_network_args, init_logger
 from oxart.tools import add_common_args
 
 
