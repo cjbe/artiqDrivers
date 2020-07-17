@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from artiqDrivers.devices.N8241A.driver import N8241A
-from artiq.protocols.pc_rpc import simple_server_loop
+from sipyco.pc_rpc import simple_server_loop
 from artiq.tools import simple_network_args, init_logger
 from oxart.tools import add_common_args
 

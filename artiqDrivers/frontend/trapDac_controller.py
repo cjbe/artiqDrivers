@@ -4,7 +4,7 @@ import argparse
 import sys
 
 from artiqDrivers.devices.trapDac.driver import TrapDac
-from artiq.protocols.pc_rpc import simple_server_loop
+from sipyco.pc_rpc import simple_server_loop
 from artiq.tools import simple_network_args, init_logger
 from oxart.tools import add_common_args
 

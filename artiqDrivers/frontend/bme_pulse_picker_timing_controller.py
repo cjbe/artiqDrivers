@@ -5,7 +5,7 @@ import sys
 
 from artiqDrivers.devices.bme_pulse_picker.bme_delay_gen import ClockSource, Driver
 from artiqDrivers.devices.bme_pulse_picker.timing import PulsePickerTiming
-from artiq.protocols.pc_rpc import simple_server_loop
+from sipyco.pc_rpc import simple_server_loop
 from artiq.tools import simple_network_args, init_logger
 from oxart.tools import add_common_args
 
