@@ -78,7 +78,7 @@ class RamanAOM(AOM):
                 else:
                     freqDDS = self.rHSr_freq - frequency # -1 order so subtract freq
             else:
-                freqDDS =
+                freqDDS = self.rHSr_freq
             print("rHSr DDS freq = ",freqDDS)
         else:
             raise ValueError("{} not a valid DDS channel name".format(self.name))
