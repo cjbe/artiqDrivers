@@ -34,6 +34,7 @@ class AOM:
             #ftw = dds.frequency_to_ftw(freq_dds)
             dds.set(freq_dds, profile = profile, amplitude = amplitude, phase = phase_dds)
             #dds.set_mu(ftw, profile = profile, amplitude = amplitude, phase = phase_dds)
+            #print("set {} profile {} to freq {}, amp {}".format(self.name,profile,freq_dds,amplitude))
         else:
             raise ValueError("{} AOM frequency out of range, {:.0f}MHz not in [{:.0f},{:.0f}]MHz".format(self.name,freq_dds / 1e6, self.range[0] / 1e6, self.range[1] / 1e6))
 
@@ -57,11 +58,14 @@ class RamanAOM(AOM):
 
     def calculate_dds_frequency(self,frequency,add_qubit_freq=True,on_clock=False,on_sr=False):
         if (self.name == 'rPara') or (self.name == 'rParaB'):
+            #print("add qubit freq",add_qubit_freq)
+            #print("on_sr",on_sr)
+            #print("frequency",frequency)
             if add_qubit_freq:
                 if on_clock:
                     freqDDS = self.ms_diff+self.rH2_freq-frequency
                 elif on_sr:
-                    freqDDS = self.rV_freq-self.rHSr_freq+frequency
+                    freqDDS = self.rHSr_freq+frequency
                 else:
                     freqDDS = self.ms_diff+self.rH_freq-frequency
             else: # this is used for gates, where the laser detuning is only the motional mode frequency + delta_g
@@ -72,13 +76,13 @@ class RamanAOM(AOM):
         elif self.name == 'rV':
             freqDDS = self.rV_freq
         elif self.name == 'rHSr':
-            if on_sr:
-                if add_qubit_freq:
-                    freqDDS = self.rV_freq - frequency # -1 order so subtract freq
-                else:
-                    freqDDS = self.rHSr_freq - frequency # -1 order so subtract freq
+            print("on_sr",on_sr)
+            print("add_qubit_freq",add_qubit_freq)
+            print("frequency",frequency)
+            if add_qubit_freq:
+                freqDDS = self.rV_freq - frequency # -1 order so subtract freq
             else:
-                freqDDS = self.rHSr_freq
+                freqDDS = self.rHSr_freq - frequency # -1 order so subtract freq
             print("rHSr DDS freq = ",freqDDS)
         else:
             raise ValueError("{} not a valid DDS channel name".format(self.name))
@@ -177,7 +181,7 @@ class RamanInterface:
             #self.rV.identity()
 
         elif channel == 'rHSr':
-            self.rHSr.set(self._lsb_round(frequency),profile=profile, amplitude=amplitude, phase=phase)
+            self.rHSr.set(self._lsb_round(frequency),profile=profile, amplitude=amplitude, phase=phase, add_qubit_freq=add_qubit_freq, on_clock=on_clock, on_sr=on_sr)
             self.rHSr.identity()
 
         elif channel == 'rParaB':
@@ -250,7 +254,7 @@ class RamanInterface:
         #print("RSB amp: ", RSB_amp)
         #print("BSB_amp: ", BSB_amp)
 
-        print("raman set bichromat, sideband freq +/-",sideband_freq)
+        #print("raman set bichromat, sideband freq +/-",sideband_freq)
 
         rounded_sideband_freq = self._lsb_round(sideband_freq) # To ensure RSB and BSB are not rounded differently
 
