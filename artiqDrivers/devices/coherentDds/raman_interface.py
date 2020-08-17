@@ -52,7 +52,7 @@ class RamanAOM(AOM):
         self.ms_diff = 3.2e9 # master-slave Raman laser frequency difference
         self.rH_freq = -109e6 # frequency of Rh, is -1st order, =self.rV_freq+hfq.df_trans(mF4=4,mF3=3)-self.ms_diff
         self.rH2_freq = 217.309632e6 # frequency of Rh2, is +1st order, =self.rV_freq+hfq.df_trans(mF4=0,mF3=1)-self.ms_diff
-        self.rHSr_freq = -192.0597339091928e6 # sr qubit freq = sr88.s_1_2_splitting(b_field=146.0942e-4) = 409428288.9091928, rHSr_freq = rV_freq - sr qubit freq # TODO: might need to add 6 kHz here like for sr_rf? # in set_dds, freq_dds = freq/order, so needs to be -ve here
+        self.rHSr_freq = -192.0537339091928e6 # sr qubit freq = sr88.zeeman_splitting_146G = 409422288.9091928, rHSr_freq = rV_freq - sr qubit freq (with measured 6 kHz offset included) # in set_dds, freq_dds = freq/order, so needs to be -ve here
 
         super().__init__(name,freq_range,order,dds)
 
