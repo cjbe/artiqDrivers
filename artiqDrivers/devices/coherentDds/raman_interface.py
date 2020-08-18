@@ -58,9 +58,6 @@ class RamanAOM(AOM):
 
     def calculate_dds_frequency(self,frequency,add_qubit_freq=True,on_clock=False,on_sr=False):
         if (self.name == 'rPara') or (self.name == 'rParaB'):
-            #print("add qubit freq",add_qubit_freq)
-            #print("on_sr",on_sr)
-            #print("frequency",frequency)
             if add_qubit_freq:
                 if on_clock:
                     freqDDS = self.ms_diff+self.rH2_freq-frequency
@@ -76,14 +73,10 @@ class RamanAOM(AOM):
         elif self.name == 'rV':
             freqDDS = self.rV_freq
         elif self.name == 'rHSr':
-            print("on_sr",on_sr)
-            print("add_qubit_freq",add_qubit_freq)
-            print("frequency",frequency)
             if add_qubit_freq:
                 freqDDS = self.rV_freq - frequency # -1 order so subtract freq
             else:
                 freqDDS = self.rHSr_freq - frequency # -1 order so subtract freq
-            print("rHSr DDS freq = ",freqDDS)
         else:
             raise ValueError("{} not a valid DDS channel name".format(self.name))
         return freqDDS
