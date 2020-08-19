@@ -215,10 +215,13 @@ class RamanInterface:
         else:
             self.rH2.dds.set_sensible_pulse_shape(pulse_shape_duration) #takes about 200ms
             self.rH2.identity()
+            self.rHSr.dds.set_sensible_pulse_shape(pulse_shape_duration)
+            self.rHSr.identity()
 
     @kernel
     def pulse_shape_on(self):
         self.rH2.dds.pulse_enable(1)
+        self.rHSr.dds.pulse_enable(1)
 
     @kernel
     def pulse_shape_pulse(self,t):
@@ -229,6 +232,7 @@ class RamanInterface:
     @kernel
     def pulse_shape_off(self):
         self.rH2.dds.pulse_enable(0)
+        self.rHSr.dds.pulse_enable(0)
 
     def set_bichromat(self,sideband_freq, phase = 0, rPara_profile=1,
                       rParaB_profile=1, RSB_amp = None, BSB_amp = None):
