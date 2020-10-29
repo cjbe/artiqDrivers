@@ -235,7 +235,8 @@ class RamanInterface:
         self.rHSr.dds.pulse_enable(0)
 
     def set_bichromat(self,sideband_freq, phase = 0, rPara_profile=1,
-                      rParaB_profile=1, RSB_amp = None, BSB_amp = None):
+                      rParaB_profile=1, RSB_amp = None, BSB_amp = None,
+                      phase_common = 0):
         """Sets up the dds channels to output a symmetric bi-chromatic tone on the rPara AOM"""
 
         imbalance_param = 0.8
@@ -257,8 +258,8 @@ class RamanInterface:
 
         #assert(np.sqrt(RSB_amp**2 + BSB_amp**2) <= 1.0)
 
-        self.rPara.set (-rounded_sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase, add_qubit_freq=False) #BSB
-        self.rParaB.set(rounded_sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=-phase, add_qubit_freq=False) #RSB
+        self.rPara.set (-rounded_sideband_freq,profile=rPara_profile,  amplitude = BSB_amp, phase=phase+phase_common, add_qubit_freq=False) #BSB
+        self.rParaB.set(rounded_sideband_freq,profile=rParaB_profile, amplitude = RSB_amp, phase=-phase+phase_common, add_qubit_freq=False) #RSB
 
         self.rPara.identity() # check if finished
         self.rParaB.identity()
